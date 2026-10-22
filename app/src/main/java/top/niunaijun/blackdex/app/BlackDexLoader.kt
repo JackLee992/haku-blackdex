@@ -1,6 +1,7 @@
 package top.niunaijun.blackdex.app
 
 import android.content.Context
+import android.os.Build
 import top.niunaijun.blackbox.BlackDexCore
 import top.niunaijun.blackbox.app.configuration.ClientConfiguration
 import top.niunaijun.blackbox.utils.FileUtils
@@ -24,6 +25,8 @@ class BlackDexLoader {
     private var mFixCodeItem by AppSharedPreferenceDelegate(App.getContext(),false)
 
     private var mHookDump by AppSharedPreferenceDelegate(App.getContext(),true)
+    // Separate opt-in: never inherit the legacy hook's default-enabled state.
+    private var mHakuApi33HookDump by AppSharedPreferenceDelegate(App.getContext(),false)
 
     private var mDir = if (mSaveEnable) {
         getDexDumpDir(App.getContext())
@@ -50,7 +53,7 @@ class BlackDexLoader {
             }
 
             override fun isEnableHookDump(): Boolean {
-                return mHookDump
+                return isHookDump()
             }
         })
     }
@@ -84,12 +87,13 @@ class BlackDexLoader {
     }
 
     fun setHookDump(enable: Boolean){
-        this.mHookDump = enable
+        if (Build.VERSION.SDK_INT >= 33) mHakuApi33HookDump = enable
+        else mHookDump = enable
     }
 
     fun isHookDump(): Boolean {
 
-        return this.mHookDump
+        return if (Build.VERSION.SDK_INT >= 33) mHakuApi33HookDump else mHookDump
     }
 
 
@@ -98,7 +102,13 @@ class BlackDexLoader {
         val TAG: String = BlackDexLoader::class.java.simpleName
 
         fun getDexDumpDir(context: Context): String {
-            return if (BuildCompat.isR()) {
+            return if (Build.VERSION.SDK_INT >= 33) {
+                // Use app-private storage for the qualified exclusive-rename
+                // publication contract and byte-for-byte readback.
+                val dump = File(context.filesDir, "haku-dex")
+                FileUtils.mkdirs(dump)
+                dump.absolutePath
+            } else if (BuildCompat.isR()) {
                 val dump = File(
                     context.externalCacheDir?.parentFile?.parentFile?.parentFile?.parentFile,
                     "Download/dexDump"

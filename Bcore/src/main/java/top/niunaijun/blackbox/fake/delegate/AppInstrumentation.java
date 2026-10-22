@@ -6,6 +6,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
@@ -103,12 +104,18 @@ public final class AppInstrumentation extends BaseInstrumentationDelegate implem
         if (BlackBoxCore.get().isEnableHookDump()) {
             String absolutePath = new File(BlackBoxCore.get().getDexDumpDir(), context.getPackageName()).getAbsolutePath();
             FileUtils.mkdirs(absolutePath);
-            Class<?> aClass = cl.loadClass(VMCore.class.getName());
             try {
-                Method initDumpDex = aClass.getDeclaredMethod("hookDumpDex", String.class);
-                initDumpDex.setAccessible(true);
-                initDumpDex.invoke(null, absolutePath);
+                if (Build.VERSION.SDK_INT >= 33) {
+                    // Use this build's core, not the historical vm.jar copy.
+                    VMCore.hookDumpDex(absolutePath);
+                } else {
+                    Class<?> aClass = cl.loadClass(VMCore.class.getName());
+                    Method initDumpDex = aClass.getDeclaredMethod("hookDumpDex", String.class);
+                    initDumpDex.setAccessible(true);
+                    initDumpDex.invoke(null, absolutePath);
+                }
             } catch (Throwable e) {
+                if (Build.VERSION.SDK_INT >= 33) VMCore.hakuHookSetupError = e.toString();
                 e.printStackTrace();
             }
         }

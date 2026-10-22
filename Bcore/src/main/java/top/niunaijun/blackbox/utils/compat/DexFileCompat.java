@@ -1,5 +1,6 @@
 package top.niunaijun.blackbox.utils.compat;
 
+import android.os.Build;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,13 +73,18 @@ public class DexFileCompat {
                     .field("mCookie")
                     .get();
             if (BuildCompat.isM()) {
-                for (long l : (long[]) object) {
-                    cookies.add(l);
+                // ART's long[] cookie reserves slot zero for OatFile*, not DexFile*.
+                long[] values = (long[]) object;
+                // Keep the upstream pre-33 path outside this bounded upgrade.
+                int firstDex = Build.VERSION.SDK_INT >= 33 ? 1 : 0;
+                for (int i = firstDex; i < values.length; i++) {
+                    cookies.add(values[i]);
                 }
             } else {
                 cookies.add((long) object);
             }
         } catch (Exception e) {
+            if (Build.VERSION.SDK_INT >= 33) throw new IllegalStateException("Cannot enumerate ART DexFiles", e);
             e.printStackTrace();
         }
         return cookies;
@@ -93,6 +99,7 @@ public class DexFileCompat {
                         .field("dexFile")
                         .<DexFile>get());
             } catch (Exception e) {
+                if (Build.VERSION.SDK_INT >= 33) throw new IllegalStateException("Cannot enumerate ART DexFiles", e);
                 e.printStackTrace();
             }
         }
@@ -109,6 +116,7 @@ public class DexFileCompat {
                     .field("dexElements")
                     .get();
         } catch (Exception e) {
+            if (Build.VERSION.SDK_INT >= 33) throw new IllegalStateException("Cannot enumerate ART DexFiles", e);
             e.printStackTrace();
         }
         return new Object[]{};
@@ -120,6 +128,7 @@ public class DexFileCompat {
                     .field("pathList")
                     .get(classLoader);
         } catch (Exception e) {
+            if (Build.VERSION.SDK_INT >= 33) throw new IllegalStateException("Cannot enumerate ART DexFiles", e);
             e.printStackTrace();
         }
         return null;
