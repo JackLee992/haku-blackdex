@@ -221,14 +221,15 @@ public class BActivityThread extends IBActivityThread.Stub {
             }
             try {
                 VMCore.cookieDumpDex(classLoader, packageName);
+                File[] dexFiles = new File(result.dir).listFiles((dir, name) -> name.endsWith(".dex"));
+                if (dexFiles == null || dexFiles.length == 0)
+                    throw new IllegalStateException("No validated DEX artifacts produced");
+                BlackBoxCore.getBDumpManager().noticeMonitor(result.dumpSuccess());
+            } catch (Throwable failure) {
+                BlackBoxCore.getBDumpManager().noticeMonitor(result.dumpError(
+                        failure.getClass().getSimpleName() + ": " + failure.getMessage()));
             } finally {
                 mAppConfig = null;
-                File dir = new File(result.dir);
-                if (!dir.exists() || dir.listFiles().length == 0) {
-                    BlackBoxCore.getBDumpManager().noticeMonitor(result.dumpError("not found dex file"));
-                } else {
-                    BlackBoxCore.getBDumpManager().noticeMonitor(result.dumpSuccess());
-                }
                 BlackBoxCore.get().uninstallPackage(packageName);
             }
         }).start();
