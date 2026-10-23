@@ -1,8 +1,9 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.2"
+    ndkVersion "23.1.7779620"
+    compileSdkVersion 33
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         minSdkVersion 21
@@ -13,7 +14,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
         ndk {
             // 设置支持的SO库架构
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
     }
 
@@ -26,6 +27,7 @@ android {
     externalNativeBuild {
         cmake {
             path file('./src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
         }
     }
     dexOptions {

@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import reflection.android.app.ActivityThread;
 import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.core.VMCore;
+import top.niunaijun.blackbox.app.BActivityThread;
 import top.niunaijun.blackbox.fake.hook.HookManager;
 import top.niunaijun.blackbox.fake.hook.IInjectHook;
 import top.niunaijun.blackbox.utils.FileUtils;
@@ -107,7 +108,9 @@ public final class AppInstrumentation extends BaseInstrumentationDelegate implem
             try {
                 if (Build.VERSION.SDK_INT >= 33) {
                     // Use this build's core, not the historical vm.jar copy.
-                    VMCore.hookDumpDex(absolutePath);
+                    File session = BActivityThread.currentActivityThread().getCaptureDirectory();
+                    if (session == null) throw new IllegalStateException("Missing ART hook session");
+                    VMCore.hookDumpDex(session.getAbsolutePath());
                 } else {
                     Class<?> aClass = cl.loadClass(VMCore.class.getName());
                     Method initDumpDex = aClass.getDeclaredMethod("hookDumpDex", String.class);
@@ -127,7 +130,19 @@ public final class AppInstrumentation extends BaseInstrumentationDelegate implem
         checkHCallback();
         Log.d(TAG, "callActivityOnCreate: " + activity.getClass().getName());
         ContextCompat.fix(activity);
-        super.callActivityOnCreate(activity, icicle);
+        try {
+            super.callActivityOnCreate(activity, icicle);
+            BActivityThread.currentActivityThread().onTargetActivityCreated(activity);
+        } catch (RuntimeException error) {
+            BActivityThread.currentActivityThread().captureFailed(error);
+            throw error;
+        }
+    }
+
+    @Override
+    public void callActivityOnResume(Activity activity) {
+        super.callActivityOnResume(activity);
+        BActivityThread.currentActivityThread().onTargetActivityResumed(activity);
     }
 
     @Override

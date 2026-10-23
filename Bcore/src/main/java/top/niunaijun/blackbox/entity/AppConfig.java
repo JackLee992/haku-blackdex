@@ -24,6 +24,8 @@ public class AppConfig implements Parcelable {
     public int userId;
     public int baseBUid;
     public IBinder token;
+    // Bound by the server when this process is created, never by active-session at bind time.
+    public String captureSessionId;
 
     @Override
     public int describeContents() {
@@ -40,6 +42,7 @@ public class AppConfig implements Parcelable {
         dest.writeInt(this.userId);
         dest.writeInt(this.baseBUid);
         dest.writeStrongBinder(token);
+        dest.writeString(this.captureSessionId);
     }
 
     public AppConfig() {
@@ -54,6 +57,7 @@ public class AppConfig implements Parcelable {
         this.userId = in.readInt();
         this.baseBUid = in.readInt();
         this.token = in.readStrongBinder();
+        this.captureSessionId = in.readString();
     }
 
     public static final Parcelable.Creator<AppConfig> CREATOR = new Parcelable.Creator<AppConfig>() {

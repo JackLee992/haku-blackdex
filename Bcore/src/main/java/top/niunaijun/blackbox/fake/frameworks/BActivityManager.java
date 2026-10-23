@@ -1,6 +1,9 @@
 package top.niunaijun.blackbox.fake.frameworks;
 
 import android.content.Intent;
+import android.content.ComponentName;
+import android.os.Build;
+import top.niunaijun.blackbox.entity.AppConfig;
 import android.os.RemoteException;
 
 import top.niunaijun.blackbox.BlackBoxCore;
@@ -27,8 +30,29 @@ public class BActivityManager {
         try {
             getService().startActivity(intent, userId);
         } catch (Exception e) {
+            if (Build.VERSION.SDK_INT >= 33) throw new IllegalStateException("Container activity launch failed", e);
             e.printStackTrace();
         }
+    }
+
+    public AppConfig initProcess(String packageName, String processName, int userId) throws RemoteException {
+        return getService().initProcess(packageName, processName, userId);
+    }
+
+    public void stopCaptureProcesses(String packageName, int userId, String sessionId) throws RemoteException {
+        getService().stopCaptureProcesses(packageName, userId, sessionId);
+    }
+
+    public ComponentName startService(Intent intent, String resolvedType, int userId) throws RemoteException {
+        return getService().startService(intent, resolvedType, userId);
+    }
+
+    public int stopService(Intent intent, String resolvedType, int userId) throws RemoteException {
+        return getService().stopService(intent, resolvedType, userId);
+    }
+
+    public void stopPackageProcesses(String packageName, int userId) throws RemoteException {
+        getService().stopPackageProcesses(packageName, userId);
     }
 
     private IBActivityManagerService getService() {

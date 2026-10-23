@@ -16,7 +16,10 @@ import top.niunaijun.blackbox.utils.FileUtils;
  */
 public class BEnvironment {
     private static final File sVirtualRoot = new File(BlackBoxCore.getContext().getCacheDir().getParent(), "virtual");
-    private static final File sExternalVirtualRoot = BlackBoxCore.getContext().getExternalFilesDir("virtual");
+    // Private cache/calibration access must not initialize removable storage.
+    private static class ExternalRoot {
+        private static final File ROOT = BlackBoxCore.getContext().getExternalFilesDir("virtual");
+    }
 
     public static File JUNIT_JAR = new File(getCacheDir(), "junit.apk");
     public static File EMPTY_JAR = new File(getCacheDir(), "empty.apk");
@@ -24,7 +27,7 @@ public class BEnvironment {
 
     public static void load() {
         FileUtils.mkdirs(sVirtualRoot);
-        FileUtils.mkdirs(sExternalVirtualRoot);
+        FileUtils.mkdirs(getExternalVirtualRoot());
         FileUtils.mkdirs(getSystemDir());
         FileUtils.mkdirs(getCacheDir());
     }
@@ -34,7 +37,7 @@ public class BEnvironment {
     }
 
     public static File getExternalVirtualRoot() {
-        return sExternalVirtualRoot;
+        return ExternalRoot.ROOT;
     }
 
     public static File getSystemDir() {
@@ -62,7 +65,7 @@ public class BEnvironment {
     }
 
     public static File getExternalUserDir(int userId) {
-        return new File(sExternalVirtualRoot, String.format(Locale.CHINA, "storage/emulated/%d/", userId));
+        return new File(getExternalVirtualRoot(), String.format(Locale.CHINA, "storage/emulated/%d/", userId));
     }
 
     public static File getUserDir(int userId) {

@@ -1,0 +1,126 @@
+{
+  "schema": "haku.android13.container.validation.v1",
+  "date": "2026-10-23",
+  "version": "0.2.0-dev.1",
+  "qualification": {
+    "deviceFamily": "Redmi/chopin",
+    "android": 13,
+    "apiLevel": 33,
+    "hostAbi": "arm64-v8a",
+    "fixture": "owned packer-style lifecycle application",
+    "rootedLabPhone": true,
+    "shellRootUsedForInstallationAndCollection": true,
+    "captureCodeRequestsRoot": false,
+    "stockUnrootedDeviceQualified": false
+  },
+  "hostApk": {
+    "name": "haku-blackdex64-dev.apk",
+    "sha256": "1cc133744f6f7b5a6f237825990109d76bbcf1aebf459e18d60accf3bfa7f439",
+    "bytes": 6332611
+  },
+  "arm32BuildOnly": {
+    "name": "haku-blackdex32-dev.apk",
+    "sha256": "8636d32c3ff259ca4cb8633f9f4e3b8bef64e1acbf404269a75684283faaa1c5",
+    "runtimeQualified": false
+  },
+  "fixture": {
+    "name": "haku-container-fixture.apk",
+    "sha256": "47956ab3aed13ff507712cfab7a562473e212cd8cd806b2d7caef01b4e56febd",
+    "bytes": 25178
+  },
+  "capture": {
+    "normalPassed": true,
+    "cancelControlPassed": true,
+    "cancelDuringApplicationStartup": true,
+    "cancelBeforeActivityCreation": true,
+    "retryPassed": true,
+    "cancelledReportUnchanged": true,
+    "retrySessionDistinct": true,
+    "retryVerified": true,
+    "targetDexCount": 3,
+    "targetDexBytes": 61780,
+    "targetDex": [
+      {
+        "name": "runtime/4e950159e2e1df230470d7c191687affba85e84aa7c9e430559d2ea98de7e867.dex",
+        "bytes": 23836,
+        "sha256": "4e950159e2e1df230470d7c191687affba85e84aa7c9e430559d2ea98de7e867"
+      },
+      {
+        "name": "runtime/58c5847a33cec6eabc2c75dd2ecbfb0faa7ec38ed6fc1efeb6cfe765f839cd40.dex",
+        "bytes": 23836,
+        "sha256": "58c5847a33cec6eabc2c75dd2ecbfb0faa7ec38ed6fc1efeb6cfe765f839cd40"
+      },
+      {
+        "name": "runtime/c4ade1317ac89f8400e7577ca1fa8b29c1a9a5a043ceb0e1679018155a1dfc24.dex",
+        "bytes": 14108,
+        "sha256": "c4ade1317ac89f8400e7577ca1fa8b29c1a9a5a043ceb0e1679018155a1dfc24"
+      }
+    ],
+    "supportArchivesExcluded": true,
+    "normalZip": {
+      "bytes": 36989,
+      "sha256": "e29c18ae4dd6006200176119746c02a05190e1563cb8e91e12e465a7d3b69292"
+    },
+    "retryZip": {
+      "bytes": 36991,
+      "sha256": "be1b90112050bb521ff50fbebd26387c35cb992ff2a7d40b1c97b142b23a70c2"
+    },
+    "sdkDexdumpPassed": true,
+    "originalApkByteExact": true,
+    "payloadsExecutedAndSourcesDeleted": true,
+    "applicationActivityNavigationResult": true,
+    "separateWorkerServiceLifecycle": true
+  },
+  "gui": {
+    "verifyZipAgain": true,
+    "systemShareChooserDisplayed": true,
+    "recipientSelected": false,
+    "historyReloadVerified": true,
+    "ungrantedShellReadDenied": true
+  },
+  "atomicFileRegression": {
+    "testApkSha256": "f0fb7e398232bee388272b5acc1c6135338a79c3f37de6fbeed041f05e3c197f",
+    "sameTestApkUsed": true,
+    "beforeFixHostSha256": "1b9fa725b48a3bf0d4248df948c06ff1ed3eae13b16c01a57842e1271f125f74",
+    "beforeFixTests": 2,
+    "beforeFixFailures": 2,
+    "expectedOldFailure": "Reader deleted the writer pending .new publication",
+    "afterFixHostSha256": "1cc133744f6f7b5a6f237825990109d76bbcf1aebf459e18d60accf3bfa7f439",
+    "afterFixTests": 2,
+    "afterFixFailures": 0,
+    "forcedPendingReportWrite": true,
+    "forcedPendingActivePointerWrite": true
+  },
+  "checks": {
+    "jvmArchiveCopyTests": 11,
+    "jvmFailures": 0,
+    "unchangedNativeSanitizerBaselineAssertions": 86,
+    "negativeVerifierCases": [
+      {
+        "case": "failed-receipt",
+        "rejected": true,
+        "reason": "Export is not a verified capture"
+      },
+      {
+        "case": "altered-archive",
+        "rejected": true,
+        "reason": "Published ZIP byte count or SHA256 mismatch"
+      }
+    ]
+  },
+  "deviceRestoration": {
+    "selinuxEnforcing": true,
+    "selinuxPolicyUnchanged": true,
+    "temporaryPowerSettingRestored": true,
+    "intranetRelayConfigurationTouched": false
+  },
+  "coverage": "Loaded DEX files of the main application class loader at a snapshot 2000ms after Activity.onCreate. Secondary processes, independent child loaders, late loads and deep method recovery are not covered.",
+  "limits": [
+    "Owned fixture and this Redmi API33 ARM64 runtime only",
+    "Worker service lifecycle is covered; worker-only DEX capture is not",
+    "Independent child loaders and code loaded after the snapshot are not covered",
+    "CDEX, deep recovery and rebuilt/installable APK reconstruction are not covered",
+    "ARM32 build only; Android14+ and other OEM layouts unqualified",
+    "Share chooser shown; no recipient selected"
+  ]
+}

@@ -1,4 +1,4 @@
-> **Haku maintained fork:** This branch adds an initial, bounded Android 13 extraction backend. See [ANDROID13.md](ANDROID13.md) and [CHANGELOG.md](CHANGELOG.md) for tested scope and remaining limitations. The original documentation and bundled APKs below are historical upstream material.
+> **Haku maintained fork:** The Android 13 ARM64 container preview now runs the complete owned-fixture capture/export flow on a real Redmi. Install and use it through [the Haku guide](haku/CONTAINER_GUIDE.md); read [validation and limits](haku/CONTAINER_VALIDATION.md), [API33 implementation](ANDROID13.md), and [changes](CHANGELOG.md). The original documentation and bundled APKs below are historical upstream material.
 
 # BlackDex
 

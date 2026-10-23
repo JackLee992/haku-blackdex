@@ -1,6 +1,8 @@
 package top.niunaijun.blackbox.fake.service;
 
 import reflection.android.app.IActivityTaskManager;
+import android.os.Build;
+import reflection.android.util.Singleton;
 import reflection.android.os.ServiceManager;
 import top.niunaijun.blackbox.fake.hook.BinderInvocationStub;
 import top.niunaijun.blackbox.fake.hook.ScanClass;
@@ -29,6 +31,17 @@ public class IActivityTaskManagerProxy extends BinderInvocationStub {
     @Override
     protected void inject(Object baseInvocation, Object proxyInvocation) {
         replaceSystemService("activity_task");
+        if (Build.VERSION.SDK_INT == 33) {
+            try {
+                // Instrumentation may have resolved this singleton before hooks ran.
+                java.lang.reflect.Field singletonField = Class.forName("android.app.ActivityTaskManager")
+                        .getDeclaredField("IActivityTaskManagerSingleton");
+                singletonField.setAccessible(true);
+                Singleton.mInstance.unwrap().set(singletonField.get(null), proxyInvocation);
+            } catch (ReflectiveOperationException error) {
+                throw new IllegalStateException("Cannot bind ActivityTaskManager proxy", error);
+            }
+        }
     }
 
     @Override

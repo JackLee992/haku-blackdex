@@ -42,10 +42,7 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
     @Override
     public ComponentName startService(Intent intent, String resolvedType, int userId) {
         UserSpace userSpace = getOrCreateSpaceLocked(userId);
-        synchronized (userSpace.mActiveServices) {
-            userSpace.mActiveServices.startService(intent, resolvedType, userId);
-        }
-        return null;
+        return userSpace.mActiveServices.startService(intent, resolvedType, userId);
     }
 
     @Override
@@ -173,6 +170,16 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
         if (processRecord == null)
             return null;
         return processRecord.getClientConfig();
+    }
+
+    @Override
+    public void stopCaptureProcesses(String packageName, int userId, String sessionId) {
+        BProcessManager.get().stopCaptureProcesses(packageName, userId, sessionId);
+    }
+
+    @Override
+    public void stopPackageProcesses(String packageName, int userId) {
+        BProcessManager.get().killPackageAsUser(packageName, userId);
     }
 
     @Override

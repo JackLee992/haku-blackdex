@@ -1,0 +1,17 @@
+package com.jacklee.haku.containerfixture;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+
+public final class FixtureService extends Service {
+    @Override public void onCreate() {
+        super.onCreate();
+        FixtureApplication.record(this, "serviceOnCreate", true);
+    }
+    @Override public int onStartCommand(Intent intent, int flags, int startId) {
+        FixtureApplication.record(this, "serviceOnStartCommand", true);
+        return START_NOT_STICKY;
+    }
+    @Override public IBinder onBind(Intent intent) { return null; }
+}

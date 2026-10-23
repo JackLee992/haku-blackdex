@@ -1,6 +1,10 @@
 package top.niunaijun.blackbox.fake.service;
 
 import java.lang.reflect.Method;
+import android.content.Intent;
+import android.os.Build;
+import android.os.IBinder;
+import top.niunaijun.blackbox.app.BActivityThread;
 
 import reflection.android.app.ActivityManagerNative;
 import reflection.android.app.ActivityManagerOreo;
@@ -95,7 +99,12 @@ public class IActivityManagerProxy extends ClassInvocationStub {
     public static class StartService extends MethodHook {
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
-            return 0;
+            if (Build.VERSION.SDK_INT == 33) {
+                // AOSP13: caller, service, resolvedType, requireForeground, ...
+                if (Boolean.TRUE.equals(args[3])) throw new UnsupportedOperationException("Foreground service capture is not qualified");
+                return BlackBoxCore.getBActivityManager().startService((Intent) args[1], (String) args[2], BActivityThread.getUserId());
+            }
+            return null;
         }
     }
 
@@ -103,7 +112,19 @@ public class IActivityManagerProxy extends ClassInvocationStub {
     public static class StopService extends MethodHook {
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            if (Build.VERSION.SDK_INT == 33)
+                return BlackBoxCore.getBActivityManager().stopService((Intent) args[1], (String) args[2], BActivityThread.getUserId());
             return 0;
+        }
+    }
+
+    @ProxyMethod(name = "stopServiceToken")
+    public static class StopServiceToken extends MethodHook {
+        @Override
+        protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            if (Build.VERSION.SDK_INT == 33)
+                return BActivityThread.currentActivityThread().stopVirtualServiceToken((IBinder) args[1], ((Number) args[2]).intValue());
+            return method.invoke(who, args);
         }
     }
 

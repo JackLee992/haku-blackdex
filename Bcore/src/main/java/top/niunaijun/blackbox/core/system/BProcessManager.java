@@ -7,6 +7,9 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.Build;
+import top.niunaijun.blackbox.core.HakuCaptureSession;
+import top.niunaijun.blackbox.entity.dump.DumpResult;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -189,11 +192,29 @@ public class BProcessManager {
 
     public void onProcessDie(ProcessRecord record) {
         synchronized (mProcessLock) {
-            record.kill();
-            Map<String, ProcessRecord> remove = mProcessMap.remove(record.buid);
-            if (remove != null)
-                remove.remove(record.processName);
+            // Binder death means this process is already gone. Do not signal a
+            // recycled PID or discard a still-running sibling process's entry.
+            Map<String, ProcessRecord> processes = mProcessMap.get(record.buid);
+            if (processes != null && processes.get(record.processName) == record) {
+                processes.remove(record.processName);
+                if (processes.isEmpty()) mProcessMap.remove(record.buid);
+            }
             mPidsSelfLocked.remove(record);
+        }
+        if (Build.VERSION.SDK_INT == 33 && record.captureDirectory != null
+                && record.info.packageName.equals(record.processName)) {
+            try {
+                String error = "Target main process exited before capture completed (pid " + record.pid + ")";
+                // finish holds the cross-process session lock and refuses to
+                // overwrite verified/failed terminal reports, including normal cleanup.
+                HakuCaptureSession.finish(record.captureDirectory, error);
+                DumpResult result = new DumpResult();
+                result.packageName = record.info.packageName;
+                result.dir = record.captureDirectory.getAbsolutePath();
+                BlackBoxCore.getBDumpManager().noticeMonitor(result.dumpError(error));
+            } catch (Exception alreadyTerminalOrUnavailable) {
+                Log.d(TAG, "No pending capture to fail on process exit: " + alreadyTerminalOrUnavailable.getMessage());
+            }
         }
     }
 
@@ -223,6 +244,16 @@ public class BProcessManager {
                 }
                 mPidsSelfLocked.clear();
                 mPidsSelfLocked.addAll(tmp);
+            }
+        }
+    }
+
+    public void stopCaptureProcesses(String packageName, int userId, String sessionId) {
+        synchronized (mProcessLock) {
+            for (ProcessRecord record : new ArrayList<>(mPidsSelfLocked)) {
+                if (record.userId == userId && packageName.equals(record.info.packageName)
+                        && record.captureDirectory != null && sessionId.equals(record.captureDirectory.getName()))
+                    record.kill();
             }
         }
     }

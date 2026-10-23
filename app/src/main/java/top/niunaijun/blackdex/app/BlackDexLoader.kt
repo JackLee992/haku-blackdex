@@ -5,7 +5,6 @@ import android.os.Build
 import top.niunaijun.blackbox.BlackDexCore
 import top.niunaijun.blackbox.app.configuration.ClientConfiguration
 import top.niunaijun.blackbox.utils.FileUtils
-import top.niunaijun.blackbox.utils.compat.BuildCompat
 import top.niunaijun.blackdex.biz.cache.AppSharedPreferenceDelegate
 import java.io.File
 
@@ -28,11 +27,7 @@ class BlackDexLoader {
     // Separate opt-in: never inherit the legacy hook's default-enabled state.
     private var mHakuApi33HookDump by AppSharedPreferenceDelegate(App.getContext(),false)
 
-    private var mDir = if (mSaveEnable) {
-        getDexDumpDir(App.getContext())
-    } else {
-        mSavePath
-    }
+    private val mDir = getDexDumpDir(App.getContext())
 
     fun addLifecycleCallback() {
 
@@ -102,24 +97,9 @@ class BlackDexLoader {
         val TAG: String = BlackDexLoader::class.java.simpleName
 
         fun getDexDumpDir(context: Context): String {
-            return if (Build.VERSION.SDK_INT >= 33) {
-                // Use app-private storage for the qualified exclusive-rename
-                // publication contract and byte-for-byte readback.
-                val dump = File(context.filesDir, "haku-dex")
-                FileUtils.mkdirs(dump)
-                dump.absolutePath
-            } else if (BuildCompat.isR()) {
-                val dump = File(
-                    context.externalCacheDir?.parentFile?.parentFile?.parentFile?.parentFile,
-                    "Download/dexDump"
-                )
-                FileUtils.mkdirs(dump)
-                dump.absolutePath
-            } else {
-                val dump = File(context.externalCacheDir?.parentFile, "dump")
-                FileUtils.mkdirs(dump)
-                dump.absolutePath
-            }
+            val dump = File(context.filesDir, "haku-dex")
+            FileUtils.mkdirs(dump)
+            return dump.absolutePath
         }
     }
 }

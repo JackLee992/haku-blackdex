@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.jacklee.haku.containerfixture">
+    <application android:name=".FixtureApplication" android:label="Haku Container Fixture"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:allowBackup="false" android:debuggable="true">
+        <activity android:name=".FixtureActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SecondActivity" android:exported="false" />
+        <service android:name=".FixtureService" android:process=":worker" android:exported="false" />
+    </application>
+</manifest>

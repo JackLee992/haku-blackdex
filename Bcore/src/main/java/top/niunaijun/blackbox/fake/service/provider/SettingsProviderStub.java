@@ -1,6 +1,8 @@
 package top.niunaijun.blackbox.fake.service.provider;
 
 import android.os.IInterface;
+import android.os.Build;
+import android.content.AttributionSource;
 
 import java.lang.reflect.Method;
 
@@ -50,10 +52,20 @@ public class SettingsProviderStub extends ClassInvocationStub implements VConten
         if ("asBinder".equals(method.getName())) {
             return method.invoke(mBase, args);
         }
-        if (args != null && args.length > 0 && args[0] instanceof String) {
-            String pkg = (String) args[0];
-            args[0] = BlackBoxCore.getHostPkg();
+        if (args != null && args.length > 0) {
+            if (Build.VERSION.SDK_INT >= 31 && args[0] instanceof AttributionSource) {
+                // IContentProvider uses AttributionSource on modern Android. The
+                // system sees the host UID, so forward its actual identity/token.
+                // The target's logical Context/package identity stays unchanged.
+                args[0] = BlackBoxCore.getContext().getAttributionSource();
+            } else if (args[0] instanceof String) {
+                args[0] = BlackBoxCore.getHostPkg();
+            }
         }
-        return method.invoke(mBase, args);
+        try {
+            return method.invoke(mBase, args);
+        } catch (java.lang.reflect.InvocationTargetException error) {
+            throw error.getCause();
+        }
     }
 }

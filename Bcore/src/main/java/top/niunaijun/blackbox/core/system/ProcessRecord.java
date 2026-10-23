@@ -8,6 +8,9 @@ import android.os.IInterface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.Process;
+import android.os.Build;
+import java.io.File;
+import top.niunaijun.blackbox.core.HakuCaptureSession;
 import android.text.TextUtils;
 
 import java.util.Arrays;
@@ -28,6 +31,8 @@ public class ProcessRecord extends Binder implements Parcelable {
     public int callingVUid;
     public int userId;
     public int baseBUid;
+    // Server-only session identity: never look up a newer attempt when this PID dies.
+    public final File captureDirectory;
 
     public ConditionVariable initLock = new ConditionVariable();
 
@@ -38,6 +43,12 @@ public class ProcessRecord extends Binder implements Parcelable {
         this.userId = 0;
         this.callingVUid = callingVUid;
         this.processName = processName;
+        File sessionDirectory = null;
+        if (Build.VERSION.SDK_INT == 33) {
+            try { sessionDirectory = HakuCaptureSession.current(info.packageName); }
+            catch (java.io.IOException ignored) { }
+        }
+        captureDirectory = sessionDirectory;
     }
 
     public int getCallingBUid() {
@@ -77,6 +88,7 @@ public class ProcessRecord extends Binder implements Parcelable {
         config.userId = userId;
         config.token = this;
         config.baseBUid = baseBUid;
+        config.captureSessionId = captureDirectory == null ? null : captureDirectory.getName();
         return config;
     }
 
@@ -113,6 +125,9 @@ public class ProcessRecord extends Binder implements Parcelable {
     }
 
     protected ProcessRecord(Parcel in) {
+        // Parcel copies are descriptive records, not server-owned process handles.
+        // Client session identity is transported separately through AppConfig.
+        this.captureDirectory = null;
         this.info = in.readParcelable(ApplicationInfo.class.getClassLoader());
         this.processName = in.readString();
         this.pid = in.readInt();

@@ -143,6 +143,9 @@ JavaVM *VmCore::getJavaVM() {
 }
 
 void nativeHook(JNIEnv *env) {
+    // API33 uses virtual ApplicationInfo paths and the Java Os proxy. The old
+    // ArtMethod scanning/JNI replacement engine is not qualified on this ART.
+    if (android_get_device_api_level() >= 33) return;
     BaseHook::init(env);
     UnixFileSystemHook::init(env);
 //    VMClassLoaderHook::init(env);
@@ -169,8 +172,10 @@ void init(JNIEnv *env, jobject clazz, jint api_level) {
     VMEnv.findMethod = env->GetStaticMethodID(VMEnv.VMCoreClass, "findMethod",
                                               "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;");
 
-    ArtM::InitArtMethod(env, api_level);
-    JniHook::InitJniHook(env, api_level);
+    if (api_level < 33) {
+        ArtM::InitArtMethod(env, api_level);
+        JniHook::InitJniHook(env, api_level);
+    }
 }
 
 void addIORule(JNIEnv *env, jclass clazz, jstring target_path,

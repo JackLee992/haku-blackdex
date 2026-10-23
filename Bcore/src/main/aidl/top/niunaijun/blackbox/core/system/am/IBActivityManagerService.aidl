@@ -15,6 +15,8 @@ import android.os.Bundle;
 
 interface IBActivityManagerService {
     AppConfig initProcess(String packageName, String processName, int userId);
+    void stopCaptureProcesses(String packageName, int userId, String sessionId);
+    void stopPackageProcesses(String packageName, int userId);
     void restartProcess(String packageName, String processName, int userId);
 
     void startActivity(in Intent intent, int userId);

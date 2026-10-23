@@ -1,0 +1,9 @@
+<resources>
+    <item name="haku_applications" type="id"/><item name="haku_exports" type="id"/>
+    <item name="haku_search" type="id"/><item name="haku_application_list" type="id"/>
+    <item name="haku_capture_status" type="id"/><item name="haku_capture_bytes" type="id"/>
+    <item name="haku_capture_log" type="id"/><item name="haku_result_status" type="id"/>
+    <item name="haku_result_detail" type="id"/><item name="haku_verify" type="id"/>
+    <item name="haku_cancel" type="id"/>
+    <item name="haku_share" type="id"/><item name="haku_done" type="id"/><item name="haku_export_list" type="id"/>
+</resources>

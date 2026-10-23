@@ -3,7 +3,6 @@ package top.niunaijun.blackdex.app
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import com.umeng.commonsdk.UMConfigure
 
 /**
  *
@@ -34,6 +33,5 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         AppManager.doOnCreate(mContext)
-        UMConfigure.init(this, "60b373136c421a3d97d23c29", "Github", UMConfigure.DEVICE_TYPE_PHONE, null)
     }
 }

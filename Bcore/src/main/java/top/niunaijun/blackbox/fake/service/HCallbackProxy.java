@@ -3,6 +3,7 @@ package top.niunaijun.blackbox.fake.service;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Handler;
+import android.os.Build;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
@@ -89,6 +90,7 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
     private Object getLaunchActivityItem(Object clientTransaction) {
         List<Object> mActivityCallbacks = ClientTransaction.mActivityCallbacks.get(clientTransaction);
 
+        if (mActivityCallbacks == null) return null;
         for (Object obj : mActivityCallbacks) {
             if (LaunchActivityItem.REF.getClazz().getName().equals(obj.getClass().getCanonicalName())) {
                 return obj;
@@ -126,7 +128,19 @@ public class HCallbackProxy implements IInjectHook, Handler.Callback {
             if (!BActivityThread.currentActivityThread().isInit()) {
                 BActivityThread.currentActivityThread().bindApplication(activityInfo.packageName,
                         activityInfo.processName);
-                return false;
+            }
+            if (Build.VERSION.SDK_INT == 33) {
+                if (!BActivityThread.currentActivityThread().isInit() || stubRecord.mTarget == null)
+                    throw new IllegalStateException("Target application binding failed");
+                // AOSP13 LaunchActivityItem.execute constructs ActivityClientRecord
+                // from these two fields. Let ActivityThread perform the real launch.
+                try {
+                    LaunchActivityItem.mIntent.unwrap().set(r, stubRecord.mTarget);
+                    LaunchActivityItem.mInfo.unwrap().set(r, activityInfo);
+                } catch (ReflectiveOperationException e) {
+                    BActivityThread.currentActivityThread().captureFailed(e);
+                    throw new IllegalStateException("Cannot restore target launch transaction", e);
+                }
             }
         }
         return false;
