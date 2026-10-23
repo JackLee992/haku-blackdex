@@ -1,5 +1,6 @@
 package top.niunaijun.blackdex.view.setting
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import androidx.preference.Preference
@@ -44,11 +45,19 @@ class SettingFragment : PreferenceFragmentCompat() {
 
         fixCodeItemPreference = findPreference("fix_code_item")!!
         fixCodeItemPreference.onPreferenceChangeListener = mFixCodeItemChange
+        if (Build.VERSION.SDK_INT >= 33) {
+            AppManager.mBlackBoxLoader.setFixCodeItem(false)
+            fixCodeItemPreference.isEnabled = false
+            fixCodeItemPreference.summary = "Deep ArtMethod recovery is unsupported on Android 13 and later."
+        }
         fixCodeItemPreference.isChecked = AppManager.mBlackBoxLoader.isFixCodeItem()
 
         hookDumpPreference = findPreference("hook_dump")!!
         hookDumpPreference.onPreferenceChangeListener = mHookDumpChange
         hookDumpPreference.isChecked = AppManager.mBlackBoxLoader.isHookDump()
+        if (Build.VERSION.SDK_INT >= 33) {
+            hookDumpPreference.summary = "Experimental ART hook; device ABI, performance and complete-session reporting are not yet qualified. Disabled by default."
+        }
 
     }
 

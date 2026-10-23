@@ -88,3 +88,9 @@ lint/tmp/
 
 # git rm -r --cached .
 # git add .
+# Haku generated builds, signing keys and local probe artifacts
+.build/
+.haku-build/
+dist/
+__pycache__/
+*.pyc
