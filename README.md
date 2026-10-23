@@ -1,3 +1,5 @@
+> **Haku maintained fork:** This branch adds an initial, bounded Android 13 extraction backend. See [ANDROID13.md](ANDROID13.md) and [CHANGELOG.md](CHANGELOG.md) for tested scope and remaining limitations. The original documentation and bundled APKs below are historical upstream material.
+
 # BlackDex
 
 **[English Version](README_EN.md)**
