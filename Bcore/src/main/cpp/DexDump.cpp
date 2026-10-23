@@ -24,6 +24,7 @@
 #include "jnihook/JniHook.h"
 #include "xhook/xhook.h"
 #include "Dobby/include/dobby.h"
+#include "haku/Android13.h"
 
 #define _uintval(p)               reinterpret_cast<uintptr_t>(p)
 #define _ptr(p)                   reinterpret_cast<void *>(p)
@@ -209,6 +210,10 @@ void fixCodeItem(JNIEnv *env, const art_lkchan::DexFile *dex_file_, size_t begin
 }
 
 void DexDump::cookieDumpDex(JNIEnv *env, jlong cookie, jstring dir, jboolean fix) {
+    if (android_get_device_api_level() >= 33) {
+        haku::CaptureCookie(env, cookie, dir, fix);
+        return;
+    }
     if (beginOffset == -2) {
         init(env);
     }
@@ -271,6 +276,10 @@ void DexDump::cookieDumpDex(JNIEnv *env, jlong cookie, jstring dir, jboolean fix
 }
 
 void DexDump::hookDumpDex(JNIEnv *env, jstring dir) {
+    if (android_get_device_api_level() >= 33) {
+        haku::InstallAndroid13Hook(env, dir);
+        return;
+    }
     dumpPath = env->GetStringUTFChars(dir, 0);
     const char *libart = "libart.so";
 

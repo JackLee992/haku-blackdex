@@ -3,6 +3,7 @@
 //
 
 #include "VmCore.h"
+#include <android/api-level.h>
 #include "utils/Log.h"
 #include "IO.h"
 #include <jni.h>
@@ -145,12 +146,13 @@ void nativeHook(JNIEnv *env) {
     BaseHook::init(env);
     UnixFileSystemHook::init(env);
 //    VMClassLoaderHook::init(env);
-    ProcessHook::init(env);
+    // Haku API33+ must preserve normal process/signal behavior.
+    if (android_get_device_api_level() < 33) ProcessHook::init(env);
 }
 
 void hideXposed(JNIEnv *env, jclass clazz) {
     ALOGD("set hideXposed");
-    VMClassLoaderHook::hideXposed();
+    if (android_get_device_api_level() < 33) VMClassLoaderHook::hideXposed();
 }
 
 void init(JNIEnv *env, jobject clazz, jint api_level) {

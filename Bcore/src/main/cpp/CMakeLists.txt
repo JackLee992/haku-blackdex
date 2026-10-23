@@ -36,6 +36,8 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              VmCore.cpp
+             haku/SafeDex.cpp
+             haku/Android13.cpp
         ${SRC3}
         ${SRC1}
         ${SRC2}
